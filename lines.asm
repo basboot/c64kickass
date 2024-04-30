@@ -1,16 +1,12 @@
 .const charmem = $fb
-.const colormem = $fd
 
 *=$1000
 
 main:
   lda #$00
   sta charmem
-  sta colormem
   lda #$04
   sta charmem + 1
-  lda #$d8
-  sta colormem + 1
 
   ldy #0
   
@@ -18,14 +14,26 @@ main:
 loop:
   lda #224
   sta (charmem), y
+
+  lda charmem + 1
+  clc
+  adc #$d4
+  sta charmem + 1
+
   lda #7
-  sta (colormem), y
+  sta (charmem), y
+
+  lda charmem + 1
+  sec
+  sbc #$d4
+  sta charmem + 1
+
+  clc
 
   iny
   cpy #40
 
   bne loop
-
 
   rts
 
