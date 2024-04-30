@@ -1,5 +1,6 @@
 .const charmem = $fb
 .const color = $fd
+.const jifflow = $a2
 
 *=$1000
 
@@ -15,9 +16,9 @@ repeat:
 
   
   ldx #0
-  ldy #0
 
 outerloop:  
+  ldy #0
 
 loop:
   lda #224
@@ -60,7 +61,27 @@ loop:
 
   bne outerloop
 
+//   // delay
+//   ldx #0
+delay:
+  lda #60
+  jsr jiffwait
+
   jmp repeat // endless repeat
 
   rts
 
+// https://retrocomputing.stackexchange.com/questions/26983/assembly-delay-function-for-c64
+// Subroutine to wait for 0 to 4.25 seconds
+// called using JSR with
+// time to wait in A in 1/60 seconds 
+
+jiffwait:
+  clc
+  adc jifflow     // Add time to wait to 'now'
+
+jiffwtlp:
+  ldx jifflow
+  cmp jifflow     // Are we there yet
+  bne jiffwtlp    // No -> Continue waiting
+  rts             // Done waiting
