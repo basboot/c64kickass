@@ -1,21 +1,22 @@
 .const charmem = $fb
 .const color = $fd
-.const startcolor = $fe
 .const jifflow = $a2
 
 *=$1000
 
 main:
   lda #0
-  sta startcolor // start color
+  pha         // push start color on stack
 
 repeat:
-  lda #$00
+  lda #$00    // store start address of screen
   sta charmem
   lda #$04
   sta charmem + 1
-  inc startcolor
-  lda startcolor
+  pla         // pop start color from stac
+  clc
+  adc #1      // increment accumulator (start color)
+  pha         // push start color back to stack
   sta color
   
   ldx #0
@@ -32,8 +33,6 @@ loop:
   adc #$d4
   sta charmem + 1
 
-  // lda #7
-  // txa
   lda color
   sta (charmem), y
 
@@ -49,7 +48,7 @@ loop:
 
   bne loop
 
-  inc color
+  dec color
 
   clc
   lda charmem
@@ -65,8 +64,6 @@ loop:
 
   bne outerloop
 
-//   // delay
-//   ldx #0
 delay:
   lda #10
   jsr jiffwait
