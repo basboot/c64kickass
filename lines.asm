@@ -1,4 +1,5 @@
 .const charmem = $fb
+.const charmemtop = $fd
 .const jifflow = $a2
 
 *=$1000
@@ -8,10 +9,13 @@ main:
   pha         // push start color on stack
 
 repeat:
-  lda #$00    // store start address of screen
+  lda #$e0    // store address of middle screen row, twice to start from
   sta charmem
-  lda #$04
+  sta charmemtop
+  lda #$05
   sta charmem + 1
+  sta charmemtop + 1
+
   pla         // pop start color from stac
   clc
   adc #1      // increment accumulator (start color)
@@ -26,22 +30,32 @@ outerloop:
 loop:
   lda #224
   sta (charmem), y
+  sta (charmemtop), y
 
   lda charmem + 1
   clc
   adc #$d4
   sta charmem + 1
 
+  lda charmemtop + 1
+  clc
+  adc #$d4
+  sta charmemtop + 1
+
   pla       // pop color from stack, and push back for future use
   pha
   sta (charmem), y
+  sta (charmemtop), y
 
   lda charmem + 1
   sec
   sbc #$d4
   sta charmem + 1
 
-  clc
+  lda charmemtop + 1
+  sec
+  sbc #$d4
+  sta charmemtop + 1
 
   iny
   cpy #40
@@ -49,8 +63,8 @@ loop:
   bne loop
 
   pla     // pop current color from stack
-  sec
-  sbc #1  // decrease by one (easier than increase for scrolling color)
+  clc
+  adc #1  // decrease by one (easier than increase for scrolling color)
   pha     // push new color to stack
 
   clc
@@ -61,16 +75,24 @@ loop:
   adc #0 // carry
   sta charmem + 1
 
+  sec
+  lda charmemtop
+  sbc #40 // prev line
+  sta charmemtop
+  lda charmemtop + 1
+  sbc #0 // carry
+  sta charmemtop + 1
+
   inx
 
-  cpx #25
+  cpx #13
 
   bne outerloop
 
   pla     // remove current color from stack
 
 delay:
-  lda #10
+  lda #8
   jsr jiffwait
 
   jmp repeat // endless repeat
