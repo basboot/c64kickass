@@ -1,5 +1,4 @@
 .const charmem = $fb
-.const color = $fd
 .const jifflow = $a2
 
 *=$1000
@@ -17,7 +16,7 @@ repeat:
   clc
   adc #1      // increment accumulator (start color)
   pha         // push start color back to stack
-  sta color
+  pha         // push current colot to stack
   
   ldx #0
 
@@ -33,7 +32,8 @@ loop:
   adc #$d4
   sta charmem + 1
 
-  lda color
+  pla       // pop color from stack, and push back for future use
+  pha
   sta (charmem), y
 
   lda charmem + 1
@@ -48,7 +48,10 @@ loop:
 
   bne loop
 
-  dec color
+  pla     // pop current color from stack
+  sec
+  sbc #1  // decrease by one (easier than increase for scrolling color)
+  pha     // push new color to stack
 
   clc
   lda charmem
