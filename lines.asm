@@ -67,6 +67,8 @@ loop:
 
   bne outerloop
 
+  pla     // remove current color from stack
+
 delay:
   lda #10
   jsr jiffwait
