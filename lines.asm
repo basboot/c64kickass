@@ -1,19 +1,22 @@
 .const charmem = $fb
 .const color = $fd
+.const startcolor = $fe
 .const jifflow = $a2
 
 *=$1000
 
 main:
   lda #0
-  sta color // start color
+  sta startcolor // start color
 
 repeat:
   lda #$00
   sta charmem
   lda #$04
   sta charmem + 1
-
+  inc startcolor
+  lda startcolor
+  sta color
   
   ldx #0
 
@@ -46,6 +49,8 @@ loop:
 
   bne loop
 
+  inc color
+
   clc
   lda charmem
   adc #40 // next line
@@ -54,9 +59,8 @@ loop:
   adc #0 // carry
   sta charmem + 1
 
-  inc color
-
   inx
+
   cpx #25
 
   bne outerloop
@@ -64,7 +68,7 @@ loop:
 //   // delay
 //   ldx #0
 delay:
-  lda #60
+  lda #10
   jsr jiffwait
 
   jmp repeat // endless repeat
